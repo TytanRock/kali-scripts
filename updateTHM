@@ -1,0 +1,16 @@
+#!/bin/bash
+
+if [[ $1 == "" ]]; then
+	echo 'Specify an IP to update'
+	exit -1
+fi
+
+if [ $EUID != 0 ]; then
+	sudo "$0" "$@"
+	exit $?
+fi
+
+header="# THM IP"
+
+sed -i "s/.*$header/$1 box.thm $header/g" /etc/hosts
+
