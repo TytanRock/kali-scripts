@@ -1,6 +1,7 @@
 TARGET=revgen
 
 SrcDir = native/src
+IncDir = native/include
 ObjDir = obj
 BinDir = bin
 
@@ -18,8 +19,12 @@ build: $(Objs)
 
 $(Objs): $(ObjDir)%.o : $(SrcDir)%.c
 	@mkdir $(ObjDir) -p
-	@$(CC) -c $(CFlags) $< -o $@
+	@$(CC) -c $(CFlags) -I$(IncDir) $< -o $@
 	@echo "Compiled "$<" successfully"
+
+publish: build
+	@cp $(BinDir)/$(TARGET) ../$(TARGET)
+	@echo "Published "$(TARGET)
 
 .PHONY: clean
 clean:
