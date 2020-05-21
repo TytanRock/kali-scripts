@@ -1,9 +1,14 @@
 #include <stdlib.h>
 #include <getopt.h>
 #include <string.h>
+#include <unistd.h>
+#include <sys/wait.h>
+#include <stdio.h>
 
 #include "global.h"
 #include "options.h"
+
+#define DEFAULT_LADAPTER "tun0"
 
 /* These are the available long options for this program */
 char clipOpt[] = "clip";
@@ -79,6 +84,12 @@ struct option longOptions[] = {
 int parse_arguments(int argc, char **args) {
 	enum options selectedOption;
 	int targetSelected = 0; // Ensure multiple targets are not selected
+	
+	_global.target = NULL;
+	_global.lhost = NULL;
+	_global.ladapter = NULL;
+	_global.revTarget = target_Unknown;
+	_global.clip = 0;
 
 	while ((selectedOption = getopt_long(argc, args, validOpts, longOptions, NULL)) != -1) {
 		switch(selectedOption) {
@@ -108,7 +119,65 @@ int parse_arguments(int argc, char **args) {
 		}
 	}
 	
-	if(targetSelected == 0) return -1;
+	/* No target selected/unknown target selected */
+	if(targetSelected == 0 || _global.revTarget == target_Unknown) return -1;
+	/* Too mmany targets selected */
 	if(targetSelected != 1) return -2;
+	
+	/* At this point, we know we have what we need, let's take care all necessary globals */
+	/* First, if lhost is null, that means we need to find lhost from ladapter */
+	if(_global.lhost == NULL) {
+		/* If our adapter is not set, use default (tun0) */
+		if(_global.ladapter == NULL) {
+			_global.ladapter = calloc(sizeof(char), strlen(DEFAULT_LADAPTER));
+			strcpy(_global.ladapter, DEFAULT_LADAPTER);
+		}
+		/* Call system command to get ip address of adapter */
+		/* Fun with pipes and forks! */
+		int pipefd[2]; // Our two pipe file descriptors
+		if(pipe(pipefd) < 0) {
+			/* Our pipe failed!?! */
+			return -3;
+		}
+		int pid = fork();
+		if(pid < 0) {
+			/* Our fork failed!?! */
+			return -4;
+		}
+		if(pid == 0) {
+			/* This is the child, configure stdout */
+			close(pipefd[0]); // This is used by parent
+			dup2(pipefd[1], STDOUT_FILENO); // Duplicate stdout to pipe[1]
+			close(pipefd[1]); // Close pipe[1] now that we've configured it
+			
+			char command[100];
+			/* Form our command */
+			sprintf(command, 
+				"ip -4 addr show %s | grep inet | awk '{print $2}'",
+				_global.ladapter);
+			/* Execute it, this replaces our current image */
+			execl("/bin/sh", "sh", "-c", command, NULL);
+			/* We should never make it here */
+			exit(-5);
+		}
+		/* This is parent */
+		close(pipefd[1]);
+		int ret;
+		waitpid(pid, &ret, 0);
+		ret = WEXITSTATUS(ret);
+		if(ret != 0) return -5;
+		char ip[20];
+		read(pipefd[0], ip, sizeof(ip));
+		close(pipefd[0]);
+
+		/* Sterilize IP string to remove newline */
+		ip[(int)(strchr(ip, '/') - ip)] = '\0';
+
+		/* We have our IP, let's set it globally */
+		_global.lhost = calloc(sizeof(char), strlen(ip));
+		strcpy(_global.lhost, ip);
+	}
+
 	return 0;
 }
+
