@@ -3,6 +3,7 @@
 #include "options.h"
 #include "help.h"
 #include "revshells.h"
+#include "shellWrapper.h"
 #include "global.h"
 
 int main(int argc, char **args) {
@@ -35,6 +36,8 @@ int main(int argc, char **args) {
 	}
 	/* No longer need the revShell code, so let's free it */
 	free(revShell);
+
+	startWrapper();
 
 	return 0;
 }
