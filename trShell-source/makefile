@@ -1,4 +1,4 @@
-TARGET=revgen
+TARGET=trShell
 
 SrcDir = native/src
 IncDir = native/include
@@ -6,7 +6,7 @@ ObjDir = obj
 BinDir = bin
 
 CC = gcc
-CFlags = -Wall -Werror
+CFlags = -Wall -Werror -I$(IncDir)
 LFlags =
 
 Sources := $(wildcard $(SrcDir)/*.c)
@@ -19,7 +19,7 @@ build: $(Objs)
 
 $(Objs): $(ObjDir)%.o : $(SrcDir)%.c
 	@mkdir $(ObjDir) -p
-	@$(CC) -c $(CFlags) -I$(IncDir) $< -o $@
+	@$(CC) -c $(CFlags) $< -o $@
 	@echo "Compiled "$<" successfully"
 
 publish: build

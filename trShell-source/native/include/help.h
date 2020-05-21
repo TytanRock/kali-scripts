@@ -2,7 +2,7 @@
 #define _HELPMENU_H__
 
 char helpString[] = "\
-Usage: revgen [options] <revshell target> \n\
+Usage: trShell [options] <revshell target> \n\
  Options available: \n\
   -c --clip            : Copy revshell payload to clipboard \n\
   --target <IP>        : Use specified target IP (Default box.thm) \n\
