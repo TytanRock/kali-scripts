@@ -35,7 +35,7 @@ int main(int argc, char **args) {
 		printf("Copied code to clipboard\n");
 	}
 	/* No longer need the revShell code, so let's free it */
-	free(revShell);
+	//free(revShell);
 
 	startWrapper();
 
