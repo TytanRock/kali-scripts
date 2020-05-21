@@ -15,11 +15,12 @@ char clipOpt[] = "clip";
 char targetOpt[] = "target";
 char lhostOpt[] = "lhost";
 char ladapterOpt[] = "ladapter";
+char portOpt[] = "port";
 char netcatOpt[] = "netcat";
 char bashOpt[] = "bash";
 
 /* These are the available short options for this program */
-char validOpts[] = "ct:h:a:nb";
+char validOpts[] = "ct:h:a:p:nb";
 
 /* These are the returns of the options for this program */
 enum options {
@@ -27,6 +28,7 @@ enum options {
         target = 't',
         lhost = 'h',
         ladapter = 'a',
+	port = 'p',
         netcat = 'n',
         bash = 'b',
 };
@@ -57,7 +59,13 @@ struct option longOptions[] = {
                 .has_arg = 1,                                                                                      
                 .flag = NULL,                                                                                      
                 .val = ladapter,                                                                                   
-        },                                                                                                         
+        },         
+	{
+		.name = portOpt,
+		.has_arg = 1,
+		.flag = NULL,
+		.val = port,
+	},	
         {                                                                                                          
                 .name = netcatOpt,                                                                                 
                 .has_arg = 0,                                                                                      
@@ -85,9 +93,11 @@ int parse_arguments(int argc, char **args) {
 	enum options selectedOption;
 	int targetSelected = 0; // Ensure multiple targets are not selected
 	
+	/* Initialize global variables */
 	_global.target = NULL;
 	_global.lhost = NULL;
 	_global.ladapter = NULL;
+	_global.port = 7762;
 	_global.revTarget = target_Unknown;
 	_global.clip = 0;
 
@@ -108,6 +118,9 @@ int parse_arguments(int argc, char **args) {
 				_global.ladapter = calloc(sizeof(char), strlen(optarg));
 				strcpy(_global.ladapter, optarg);
 				break;
+			case port:
+				_global.port = atoi(optarg);
+				break;
 			case netcat:
 				if(targetSelected <= 2) ++targetSelected;
 				_global.revTarget = target_Netcat;
@@ -119,7 +132,8 @@ int parse_arguments(int argc, char **args) {
 		}
 	}
 	
-	/* No target selected/unknown target selected */
+	/* No target selected/unknown :w
+	 * target selected */
 	if(targetSelected == 0 || _global.revTarget == target_Unknown) return -1;
 	/* Too mmany targets selected */
 	if(targetSelected != 1) return -2;

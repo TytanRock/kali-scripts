@@ -13,6 +13,7 @@ struct {
 	char *target; 	// Target ip for things like upload
 	char *lhost;	// Local host IP for reverse shell generation, if set use this instead of ladapter
 	char *ladapter; // Adapter, try to find lhost based on adapter
+	int port;
 
 	reverse_target revTarget; // Target to generate reverse shell for
 
