@@ -8,7 +8,7 @@ enum trScripts {
 	stabilize_script, // Spawn a PTY using John Hammond's /bin/script method in the sweetrice video
 
 	upload,		  // Upload a file using netcat
-}
+};
 
 void startWrapper();
 
